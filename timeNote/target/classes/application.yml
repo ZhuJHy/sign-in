@@ -1,0 +1,31 @@
+server:
+  port: 8086
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://101.42.238.88:3306/song?characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 20001209
+  main:
+    allow-bean-definition-overriding: true
+
+  redis:
+    host: 101.43.172.228
+    port: 6379
+    timeout: 200000
+    password: lovexzq13141314
+    jedis:
+      pool:
+        min-idle: 1
+        max-idle: 10
+    database: 0
+
+mybatis-plus:
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  #    mapper-locations: classpath*:mybatis/mapper/**Mapper.xml
+  mapper-locations: classpath*:mybatis/mapper/**Mapper.xml
+

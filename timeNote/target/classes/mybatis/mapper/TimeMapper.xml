@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.st.mapper.TimeMapper">
+    <sql id="BASE_SQL">
+        id,student_id,start_time,end_time,last_time,week_date
+    </sql>
+    <select id="selectSignIn" resultType="com.st.empty.Time">
+        select end_time from sign_time where student_id = #{student_id} ORDER BY start_time desc LIMIT 1
+    </select>
+
+    <select id="selectSign" resultType="com.st.empty.Time">
+        select start_time from sign_time where student_id = #{student_id} ORDER BY start_time desc LIMIT 1
+    </select>
+
+    <select id="selectOut" resultType="java.time.LocalDateTime">
+        select start_time from sign_time where student_id = #{student_id} ORDER BY start_time desc LIMIT 1
+    </select>
+
+    <update id="updateAll">
+        update sign_time
+            set end_time = #{end_time},last_time = 3600000
+            where
+            last_time is null
+    </update>
+
+<!--    <select id="selectSearch" resultType="com.st.dto.TimeDto">-->
+<!--        select student_id from student limit #{page},#{size}-->
+<!--    </select>-->
+
+    <select id="searchId" resultType="com.st.dto.IdDto">
+        select student_id from student where is_delete = 0
+        <if test="keyword != null">
+            and name like '%${keyword}%' or student_id like '%${keyword}%'
+        </if>
+        limit #{page},#{size}
+    </select>
+
+    <select id="getRank" resultType="com.st.dto.RankDto">
+        select a.name,a.class_number,b.* from student AS a RIGHT JOIN (SELECT student_id, SUM(last_time) AS totalTime FROM sign_time WHERE start_time between #{startTime} and #{endTime}  GROUP BY student_id  ORDER BY SUM(last_time) DESC) AS b ON a.student_id = b.student_id WHERE b.student_id LIKE "2021%" LIMIT 0 ,10
+    </select>
+
+    <select id="getRank22" resultType="com.st.dto.RankDto">
+        select a.name,a.class_number,b.* from student AS a RIGHT JOIN (SELECT student_id, SUM(last_time) AS totalTime FROM sign_time WHERE start_time between #{startTime} and #{endTime}  GROUP BY student_id  ORDER BY SUM(last_time) DESC) AS b ON a.student_id = b.student_id WHERE b.student_id LIKE "2022%" LIMIT 0 ,10
+    </select>
+
+    <select id="sreach" resultType="java.lang.Integer">
+        select count(*) from student where is_delete = 0
+        <if test="keyword != null">
+             and name like '%${keyword}%' or student_id like '%${keyword}%'
+        </if>
+    </select>
+
+    <select id="selectWeekDate" resultType="com.st.dto.WeekDto">
+        select student_id,sum(last_time) as timesum,week_date from sign_time where student_id = #{studentId} and start_time between #{startTime} and #{endTime} group by student_id,week_date
+    </select>
+
+    <select id="getname" resultType="com.st.dto.TimeDto">
+        select student_id, name ,class_number from student where student_id = #{studentId}
+    </select>
+
+    <select id="getTotalTime" resultType="java.lang.Long">
+        select (sum(last_time))as totalTime from sign_time where student_id = #{studentId} and start_time between #{startTime} and #{endTime}
+    </select>
+
+    <update id="updateTime">
+        update sign_time
+        set end_time = #{endTime}, last_time = #{lastTime}
+        where start_time in (
+            select sTime from(
+                select start_time as sTime from sign_time where student_id = #{studentId} ORDER BY start_time desc limit 1) as a);
+    </update>
+</mapper>
